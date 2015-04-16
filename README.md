@@ -8,7 +8,7 @@ BitcoinPay payment module for Woocommerce
 
 
 
-Configuration 
+### Configuration 
 
 Some merchants need to customize payment statuses. This can be done in folowing code.
 ```
