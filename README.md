@@ -5,10 +5,14 @@ BitcoinPay payment module for Woocommerce
 ### Version
 1.0
 
+
+
+
 Configuration 
 
 Some merchants need to customize payment statuses. This can be done in folowing code.
-.. code-block:: PHP
+```
+
  if ($paymentStatus != NULL) {
 error_log($paymentStatus);
 switch ($paymentStatus) {
@@ -37,3 +41,9 @@ case 'paid_after_timeout':
 $order->update_status('failed', __('BCP Payment failed. Paid after timeout', 'bcp'));
 break;
 }
+```
+
+To change payment buttons, you can configure code here:
+```
+$this->icon_path = WP_PLUGIN_URL . "/" . plugin_basename(dirname(__FILE__)) . '/img/01_32p.png';
+```
