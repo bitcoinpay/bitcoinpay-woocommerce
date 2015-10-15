@@ -5,7 +5,13 @@ BitcoinPay payment module for Woocommerce
 ### Version
 1.0
 
-
+### Installation guide
+1. Extract ZIP file
+2. Locate directory bitcoinpay-woocommerce and copy it to your server under wp-content/plugins
+3. Go to your Wordpress administration panel and navigate: Plugins > Installed plugins > woocommerce Bitcoinpay Payment Gateway. Bitcoinpay plugin must be activated.
+4. In Wordpress Menu go to  Woocommerce > settings > checkout > Payment gateways. Locate BitcoinPay and enable it.
+5. Configure BitcoinPay plugin.
+6. You are ready to accept Bitcoins
 
 
 ### Configuration 
