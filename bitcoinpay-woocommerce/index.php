@@ -2,13 +2,15 @@
 /*
 Plugin Name: WooCommerce BitcoinPay Payment Gateway
 Plugin URI: http://www.bitcoinpay.com
-Description: BitcoinPay Payment gateway for woocommerce
+Description: BitcoinPay Payment gateway for WooCommerce
 Version: 0.1
 Author: Digito.cz
 Author URI: http://www.digito.cz
 Copyright (C) Digito.cz, Digito Proprietary License
 */
+
 add_action('plugins_loaded', 'woocommerce_bcp_payment_init', 0);
+
 function woocommerce_bcp_payment_init()
 {
     if (!class_exists('WC_Payment_Gateway'))
@@ -18,10 +20,10 @@ function woocommerce_bcp_payment_init()
     {
         public function __construct()
         {
-            $this->id            = 'bitcoinpay';
-            $this->icon_path     = WP_PLUGIN_URL . "/" . plugin_basename(dirname(__FILE__)) . '/img/01_32p.png';
-            $this->medthod_title = 'Bitcoin';
-            $this->has_fields    = false;
+            $this->id           = 'bitcoinpay';
+            $this->icon_path    = WP_PLUGIN_URL . "/" . plugin_basename(dirname(__FILE__)) . '/img/01_32p.png';
+            $this->method_title = 'Bitcoin';
+            $this->has_fields   = false;
 
             $this->init_form_fields();
             $this->init_settings();
@@ -29,17 +31,16 @@ function woocommerce_bcp_payment_init()
             $this->title       = $this->settings['title'];
             $this->description = $this->settings['description'];
             $this->icon_enable = $this->settings['icon'];
-            $this->apikey   = $this->settings['apikey'];
-            $this->callback = $this->settings['callback'];
-            $this->email    = $this->settings['email'];
-            $this->payout   = $this->settings['payout'];
+            $this->apikey      = $this->settings['apikey'];
+            $this->callback    = $this->settings['callback'];
+            $this->email       = $this->settings['email'];
+            $this->payout      = $this->settings['payout'];
 
             $this->liveurl = 'https://bitcoinpaycom.apiary-mock.com/api/v1/payment/btc';
 
             $this->msg['message'] = "";
             $this->msg['class']   = "";
 
-            //add_action('init', array(&$this, 'check_payu_response'));
             add_action('woocommerce_thankyou', function()
             {
 
@@ -52,15 +53,12 @@ function woocommerce_bcp_payment_init()
                     $bcp_thanks_title = "Your Order Has Not Been Processed Yet!";
                     $bcp_thanks_msg   = "Your order has not been successfully processed yet! We received your payment, but we are waiting for confirmation. You will be notified by email.";
                 } elseif (strcmp($returnStatus, "cancel") == 0) {
-                    $bcp_thanks_title = "Your Order Has Been Canceled!";
-                    $bcp_thanks_msg   = "Your order has been canceled at Bitcoinpay payment gate! You may place new one.";
+                    $bcp_thanks_title = "Your Order Has Been Cancelled!";
+                    $bcp_thanks_msg   = "Your order has been cancelled at BitcoinPay payment gate! You may place a new one.";
                 } else {
                     $bcp_thanks_title = "Your Order Has Not Been Processed!";
                     $bcp_thanks_msg   = "Your order has not been successfully processed!";
                 }
-
-
-
 
                 if ($doit) {
                     echo "<script>
@@ -71,11 +69,11 @@ function woocommerce_bcp_payment_init()
             </script>";
                 }
             });
+
             add_action('woocommerce_api_' . strtolower(get_class($this)), array(
                 &$this,
                 'handle_callback'
             ));
-
 
             if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '>=')) {
                 add_action('woocommerce_update_options_payment_gateways_' . $this->id, array(
@@ -101,25 +99,21 @@ function woocommerce_bcp_payment_init()
             }
 
         }
-        //custom link and icons
+
+        // custom link and icons
         public function get_icon()
         {
-            if(strcmp($this->icon_enable,'yes') == 0)
+            if (strcmp($this->icon_enable, 'yes') == 0)
                 $icon_html = "<img src=\"{$this->icon_path}\" alt=\"BitcoinPay\">";
             else
                 $icon_html = '';
-            //$icon      = (array) $this->get_icon_image(WC()->countries->get_base_country());
 
-            /*foreach ($icon as $i) {
-            $icon_html .= '<img src="' . esc_attr($i) . '" alt="' . __('PayPal Acceptance Mark', 'woocommerce') . '" />';
-            }*/
-
-            $icon_html .= '<a heref="#" onclick="window.open(\'https://bitcoinpay.com\')" style="float: right;line-height: 52px;font-size: .83em;" title="What is Bitcoinpay" target="_blank">What is Bitcoinpay?</a>';
+            $icon_html .= '<a href="#" onclick="window.open(\'https://bitcoinpay.com\')" style="float: right;line-height: 52px;font-size: .83em;" title="What is BitcoinPay" target="_blank">What is BitcoinPay?</a>';
 
             return apply_filters('woocommerce_gateway_icon', $icon_html, $this->id);
         }
 
-        //validation functions
+        // validation functions
         function validate_apikey_field($key)
         {
             static $count = 0;
@@ -127,21 +121,16 @@ function woocommerce_bcp_payment_init()
 
             // get the posted value
             $value = $_POST[$this->plugin_id . $this->id . '_' . $key];
-            /*if($count > 1)
-            return "* please insert valid API key"; */
+
             if (isset($value) && 24 != strlen($value)) {
                 if ($count > 1)
                     return "";
-
-
                 else
                     $this->errors[] = "Your API key is not VALID!";
-
-
-
             }
             return $value;
         }
+
         function validate_payout_field($key)
         {
             static $count = 0;
@@ -153,22 +142,15 @@ function woocommerce_bcp_payment_init()
             if (isset($value) && (strlen($value) != 3)) {
                 if ($count > 1)
                     return "";
-
                 else
                     $this->errors[] = "Your Payout currency is not VALID! Use 3 letter currency code.";
             } elseif (isset($value) && strlen($valid_curr = $this->check_currency($value)) != 0) {
                 if ($count > 1)
                     return "";
-
                 else {
                     strlen($valid_curr) == 1 ? $curr_list = "You must select your payout currency in BitcoinPay.com administration first" : $curr_list = $valid_curr;
-
-
                     $this->errors[] = "Your Payout currency is not VALID! Select form: {$valid_curr}";
                 }
-
-
-
             }
             return $value;
         }
@@ -192,7 +174,7 @@ function woocommerce_bcp_payment_init()
             curl_setopt($curl, CURLOPT_VERBOSE, true);
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($curl, CURLOPT_HTTPHEADER, $curlheaders);
-            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false); //bypassing ssl verification, because of bad compatibility
+            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false); // bypassing ssl verification, because of bad compatibility
 
             $response = curl_exec($curl);
 
@@ -200,12 +182,10 @@ function woocommerce_bcp_payment_init()
             $jHeader     = substr($response, 0, $header_size);
             $jBody       = substr($response, $header_size);
 
-            //http response code
+            // http response code
             $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
             if ($status != 200) {
-
-
                 if ($status == 401) {
                     if ($count > 1)
                         $this->errors[] = "API key is not VALID! Cannot connect to gate to check payout currency!";
@@ -215,10 +195,7 @@ function woocommerce_bcp_payment_init()
                 }
                 curl_close($curl);
                 return "";
-
-
             }
-
 
             $answer            = json_decode($jBody);
             $active_currencies = $answer->data->active_settlement_currencies;
@@ -234,15 +211,14 @@ function woocommerce_bcp_payment_init()
                     break;
                 }
             }
+
             if (!$isValid) {
                 $valid_currencies = '';
                 foreach ($active_currencies as $value) {
                     $valid_currencies .= '<br/ >' . $value;
                 }
-
                 return $valid_currencies;
             }
-
 
             curl_close($curl);
         }
@@ -251,28 +227,20 @@ function woocommerce_bcp_payment_init()
         {
             // loop through each error and display it
             foreach ($this->errors as $key => $value) {
-?>
-        		<div class="error">
-        			<p><?php
+                echo '<div class="error"><p>';
                 _e($value, 'bcp-error');
-?></p>
-        		</div>
-
-        		<?php
-
+                echo '</p></div>';
             }
             unset($this->errors);
         }
-        //callback function
+
+        // callback function
         function handle_callback()
         {
-            //callback
-            //error_log("Zavolan callback...");
-
             $inputData   = file_get_contents('php://input');
             $payResponse = json_decode($inputData);
 
-            //callback password
+            // callback password
             if (($callbackPass = $this->callback) != NULL) {
                 $paymentHeaders = getallheaders();
                 $digest         = $paymentHeaders["Bpsignature"];
@@ -289,21 +257,18 @@ function woocommerce_bcp_payment_init()
                 $security = 1;
             }
 
-            //payment status
+            // payment status
             $paymentStatus = $payResponse->status;
 
-            //order id
+            // order id
             $preOrderId = json_decode($payResponse->reference);
             $orderId    = $preOrderId->order_number;
 
-            //confirmation process
+            // confirmation process
             $order = new WC_Order($orderId);
 
             if ($security) {
-
-
                 if ($paymentStatus != NULL) {
-
                     error_log($paymentStatus);
                     switch ($paymentStatus) {
                         case 'confirmed':
@@ -330,13 +295,9 @@ function woocommerce_bcp_payment_init()
                         case 'paid_after_timeout':
                             $order->update_status('failed', __('BCP Payment failed. Paid after timeout', 'bcp'));
                             break;
-
                     }
-
                 }
             }
-
-
         }
 
         function add_content()
@@ -344,10 +305,8 @@ function woocommerce_bcp_payment_init()
             echo '<h2 id="h2thanks">Get 20% off</h2><p id="pthanks">Thank you for making this purchase! Come back and use the code "<strong>Back4More</strong>" to receive a 20% discount on your next purchase! Click here to continue shopping.</p>';
         }
 
-
         function init_form_fields()
         {
-
             $this->form_fields = array(
                 'enabled' => array(
                     'title' => __('Enable/Disable', 'bcp'),
@@ -408,7 +367,6 @@ function woocommerce_bcp_payment_init()
             // Generate the HTML For the settings form.
             $this->generate_settings_html();
             echo '</table>';
-
         }
 
         /**
@@ -419,6 +377,7 @@ function woocommerce_bcp_payment_init()
             if ($this->description)
                 echo wpautop(wptexturize($this->description));
         }
+
         /**
          * Process the payment and return the result
          **/
@@ -428,18 +387,18 @@ function woocommerce_bcp_payment_init()
             $order = new WC_Order($order_id);
 
             // gate logic start
-            //Getting API-ID from config
+            // Getting API-ID from config
             $apiID = $this->settings['apikey'];
 
-            //test mode check
-            $testMode = 0; //if set to 1, test mode will be set
+            // test mode check
+            $testMode = 0; // if set to 1, test mode will be set
             if (!$testMode) {
                 $payurl = 'https://www.bitcoinpay.com/api/v1/payment/btc';
             } else {
                 $payurl = 'https://bitcoinpaycom.apiary-mock.com/api/v1/payment/btc';
             }
 
-            //data preparation
+            // data preparation
             $bcp_order_id = $order_id;
             $bcp_price    = $order->get_total();
             $bcp_fname    = $order->billing_first_name;
@@ -448,7 +407,7 @@ function woocommerce_bcp_payment_init()
             $bcp_email    = $order->billing_email;
             $bcp_currency = get_woocommerce_currency();
 
-            //data finalize
+            // data finalize
             $customData  = array(
                 'customer_name' => $bcp_name,
                 'order_number' => intval($bcp_order_id),
@@ -487,7 +446,7 @@ function woocommerce_bcp_payment_init()
 
             $content = json_encode($postData);
 
-            //sending data via cURL
+            // sending data via cURL
             $curlheaders = array(
                 "Content-type: application/json",
                 "Authorization: Token {$apiID}"
@@ -498,11 +457,10 @@ function woocommerce_bcp_payment_init()
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($curl, CURLOPT_HTTPHEADER, $curlheaders);
             curl_setopt($curl, CURLOPT_POST, true);
-            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false); //bypassing ssl verification, because of bad compatibility
+            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false); // bypassing ssl verification, because of bad compatibility
             curl_setopt($curl, CURLOPT_POSTFIELDS, $content);
 
-
-            //sending to server, and waiting for response
+            // sending to server, and waiting for response
             $response = curl_exec($curl);
 
             $header_size = curl_getinfo($curl, CURLINFO_HEADER_SIZE);
@@ -511,13 +469,12 @@ function woocommerce_bcp_payment_init()
 
             $jHeaderArr = $this->get_headers_from_curl_response($jHeader);
 
-            //http response code
+            // http response code
             $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
-            //callback password check
+            // callback password check
             if (($callbackPass = $this->settings['callback']) != NULL) {
                 $digest = $jHeaderArr[0]["BPSignature"];
-
 
                 $hashMsg     = $jBody . $callbackPass;
                 $checkDigest = hash('sha256', $hashMsg);
@@ -541,17 +498,16 @@ function woocommerce_bcp_payment_init()
                 curl_close($curl);
 
                 $response         = json_decode($jBody);
-                //adding paymentID to payment method
+                // adding paymentID to payment method
                 $BCPPaymentId     = $response->data->payment_id;
                 $bcp_pre_inv      = "https://bitcoinpay.com/en/sci/invoice/btc/" . $BCPPaymentId;
                 $BCPInvoiceUrl    = "<br><strong>BitcoinPay Invoice: </strong><a href=\"" . $bcp_pre_inv . "\" target=\"_blnak\">" . $bcp_pre_inv . "</a>";
-                //$prePaymentMethod = html_entity_decode($order_info['payment_method'], ENT_QUOTES, 'UTF-8');
+                // $prePaymentMethod = html_entity_decode($order_info['payment_method'], ENT_QUOTES, 'UTF-8');
                 $finPaymentMethod = "<strong>PaymentID: </strong>" . $BCPPaymentId . $BCPInvoiceUrl;
 
-                //redirect to pay gate
+                // redirect to pay gate
                 $paymentUrl = $response->data->payment_url;
                 $order->add_order_note(__($finPaymentMethod, 'bcp'));
-
 
                 // Mark as on-hold (we're awaiting the cheque)
                 $order->update_status('pending', __('BCP Payment pending', 'bcp'));
@@ -577,7 +533,7 @@ function woocommerce_bcp_payment_init()
             $arrRequests = explode("\r\n\r\n", $headerContent);
 
             // Loop of response headers. The "count() -1" is to
-            //avoid an empty row for the extra line break before the body of the response.
+            // avoid an empty row for the extra line break before the body of the response.
             for ($index = 0; $index < count($arrRequests) - 1; $index++) {
 
                 foreach (explode("\r\n", $arrRequests[$index]) as $i => $line) {
@@ -592,10 +548,12 @@ function woocommerce_bcp_payment_init()
 
             return $headers;
         }
+
         function showMessage($content)
         {
             return '<div class="box ' . $this->msg['class'] . '-box">' . $this->msg['message'] . '</div>' . $content;
         }
+
         // get all pages
         function get_pages($title = false, $indent = true)
         {
