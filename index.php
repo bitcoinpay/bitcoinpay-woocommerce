@@ -21,7 +21,7 @@ function woocommerce_bcp_payment_init()
         public function __construct()
         {
             $this->id           = 'bitcoinpay';
-            $this->icon_path    = WP_PLUGIN_URL . "/" . plugin_basename(dirname(__FILE__)) . '/img/01_32p.png';
+            $this->icon_path    = WP_PLUGIN_URL . "/" . plugin_basename(dirname(__FILE__)) . '/bitcoinpay.png';
             $this->method_title = 'Bitcoin';
             $this->has_fields   = false;
 
