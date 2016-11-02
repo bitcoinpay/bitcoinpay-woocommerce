@@ -44,7 +44,12 @@ function woocommerce_bcp_payment_init()
             add_action('woocommerce_thankyou', function()
             {
 
-                $returnStatus = $_GET["bitcoinpay-status"];
+                $returnStatus = false;
+                if(isset($_GET["bitcoinpay-status"]) && !empty($_GET["bitcoinpay-status"])){
+                  $returnStatus = $_GET["bitcoinpay-status"];
+                }else{
+                  return;
+                }
                 $doit         = true;
 
                 if (strcmp($returnStatus, "true") == 0) {
