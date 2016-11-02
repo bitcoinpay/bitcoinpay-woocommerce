@@ -1,13 +1,19 @@
 <?php
-/*
-Plugin Name: WooCommerce BitcoinPay Payment Gateway
-Plugin URI: http://www.bitcoinpay.com
-Description: BitcoinPay Payment gateway for WooCommerce
-Version: 0.1
-Author: Digito.cz
-Author URI: http://www.digito.cz
-Copyright (C) Digito.cz, Digito Proprietary License
-*/
+/**
+ * Plugin Name: WooCommerce BitcoinPay Payment Gateway
+ * Description: BitcoinPay Payment gateway for WooCommerce
+ * Version: 0.1
+ * Author: Digito.cz
+ * Author URI: http://www.digito.cz
+ * Copyright (C) Digito.cz, Digito Proprietary License
+ * 
+ * Text Domain: bcp
+ *
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
 
 add_action('plugins_loaded', 'woocommerce_bcp_payment_init', 0);
 
@@ -46,32 +52,33 @@ function woocommerce_bcp_payment_init()
 
                 $returnStatus = false;
                 if(isset($_GET["bitcoinpay-status"]) && !empty($_GET["bitcoinpay-status"])){
-                  $returnStatus = $_GET["bitcoinpay-status"];
+                	$returnStatus = $_GET["bitcoinpay-status"];
                 }else{
-                  return;
+                	return;
                 }
+                
                 $doit         = true;
 
                 if (strcmp($returnStatus, "true") == 0) {
                     $doit = false;
                 } elseif (strcmp($returnStatus, "received") == 0) {
-                    $bcp_thanks_title = "Your Order Has Not Been Processed Yet!";
-                    $bcp_thanks_msg   = "Your order has not been successfully processed yet! We received your payment, but we are waiting for confirmation. You will be notified by email.";
+                    $bcp_thanks_title = __( 'Your Order Has Not Been Processed Yet!', 'bcp' );
+                    $bcp_thanks_msg   = __( 'Your order has not been successfully processed yet! We received your payment, but we are waiting for confirmation. You will be notified by email.', 'bcp' );
                 } elseif (strcmp($returnStatus, "cancel") == 0) {
-                    $bcp_thanks_title = "Your Order Has Been Cancelled!";
-                    $bcp_thanks_msg   = "Your order has been cancelled at BitcoinPay payment gate! You may place a new one.";
+                    $bcp_thanks_title = __( 'Your Order Has Been Cancelled!', 'bcp' );
+                    $bcp_thanks_msg   = __( 'Your order has been cancelled at BitcoinPay payment gate! You may place a new one.', 'bcp' );
                 } else {
-                    $bcp_thanks_title = "Your Order Has Not Been Processed!";
-                    $bcp_thanks_msg   = "Your order has not been successfully processed!";
+                    $bcp_thanks_title = __( 'Your Order Has Not Been Processed!', 'bcp' );
+                    $bcp_thanks_msg   = __( 'Your order has not been successfully processed!', 'bcp' );
                 }
 
                 if ($doit) {
                     echo "<script>
-            var eltitle = document.querySelector(\".entry-header .entry-title\");
-            eltitle.innerHTML = \"$bcp_thanks_title\";
-            var eltext = document.querySelector(\".entry-content .woocommerce p:first-child\");
-            eltext.innerHTML = \"$bcp_thanks_msg\";
-            </script>";
+				            var eltitle = document.querySelector(\".entry-header .entry-title\");
+				            eltitle.innerHTML = \"$bcp_thanks_title\";
+				            var eltext = document.querySelector(\".entry-content .woocommerce p:first-child\");
+				            eltext.innerHTML = \"$bcp_thanks_msg\";
+				          </script>";
                 }
             });
 
@@ -100,7 +107,7 @@ function woocommerce_bcp_payment_init()
                 $this->settings['enabled'] = 'no';
 
                 if ($count > 1)
-                    $this->errors[] = "Payment gateway has been disabled!";
+                    $this->errors[] = __( 'Payment gateway has been disabled!', 'bcp' );
             }
 
         }
@@ -112,8 +119,8 @@ function woocommerce_bcp_payment_init()
                 $icon_html = "<img src=\"{$this->icon_path}\" alt=\"BitcoinPay\">";
             else
                 $icon_html = '';
-
-            $icon_html .= '<a href="#" onclick="window.open(\'https://bitcoinpay.com\')" style="float: right;line-height: 52px;font-size: .83em;" title="What is BitcoinPay" target="_blank">What is BitcoinPay?</a>';
+            	$whatIsBitcoinPay = __( 'What is BitcoinPay?', 'bcp' );
+            $icon_html .= '<a href="#" onclick="window.open(\'https://bitcoinpay.com\')" style="float: right;line-height: 52px;font-size: .83em;" title="'.$whatIsBitcoinPay.'" target="_blank">'.$whatIsBitcoinPay.'</a>';
 
             return apply_filters('woocommerce_gateway_icon', $icon_html, $this->id);
         }
@@ -131,7 +138,7 @@ function woocommerce_bcp_payment_init()
                 if ($count > 1)
                     return "";
                 else
-                    $this->errors[] = "Your API key is not VALID!";
+                    $this->errors[] = __( 'Your API key is not VALID!', 'bcp' );
             }
             return $value;
         }
@@ -148,13 +155,14 @@ function woocommerce_bcp_payment_init()
                 if ($count > 1)
                     return "";
                 else
-                    $this->errors[] = "Your Payout currency is not VALID! Use 3 letter currency code.";
+                    $this->errors[] = __( 'Your Payout currency is not VALID! Use 3 letter currency code.', 'bcp' );
             } elseif (isset($value) && strlen($valid_curr = $this->check_currency($value)) != 0) {
                 if ($count > 1)
                     return "";
                 else {
-                    strlen($valid_curr) == 1 ? $curr_list = "You must select your payout currency in BitcoinPay.com administration first" : $curr_list = $valid_curr;
-                    $this->errors[] = "Your Payout currency is not VALID! Select form: {$valid_curr}";
+                	$payoutCurrencyAlert = __( 'You must select your payout currency in BitcoinPay.com administration first', 'bcp' );
+                    strlen($valid_curr) == 1 ? $curr_list = $payoutCurrencyAlert : $curr_list = $valid_curr;
+                    $this->errors[] = __( 'Your Payout currency is not VALID! Select form: ', 'bcp' ) . $valid_curr;
                 }
             }
             return $value;
@@ -193,10 +201,10 @@ function woocommerce_bcp_payment_init()
             if ($status != 200) {
                 if ($status == 401) {
                     if ($count > 1)
-                        $this->errors[] = "API key is not VALID! Cannot connect to gate to check payout currency!";
+                        $this->errors[] = __( 'API key is not VALID! Cannot connect to gate to check payout currency!', 'bcp' );
                 } else {
                     if ($count > 1)
-                        $this->errors[] = "API key is not VALID! Cannot connect to gate to check payout currency!";
+                        $this->errors[] = __( 'API key is not VALID! Cannot connect to gate to check payout currency!', 'bcp' );
                 }
                 curl_close($curl);
                 return "";
